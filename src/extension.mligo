@@ -79,7 +79,8 @@ let transfer_presigned (ext : t) (param_permit_key: permit_key): bool * t =
             match Big_map.find_opt param_permit_key ext.permit_expiries with
             | None ->
                 begin
-                    match Big_map.find_opt param_permit_key.0 ext.user_expiries with
+                    let user_address = param_permit_key.0 in 
+                    match Big_map.find_opt user_address ext.user_expiries with
                     | None -> (Some ext.default_expiry)
                     | Some exp -> exp
                 end
