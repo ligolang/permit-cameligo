@@ -22,17 +22,17 @@ let create (metadata,owner,amount : FA2.TokenMetadata.data * address * nat) (s :
     let s = Storage.set_token_metadata s md in
     let ledger = FA2.Ledger.increase_token_amount_for_user s.ledger owner metadata.token_id amount in
     let s = FA2.Storage.set_ledger s ledger in
-    let supply = Extension.create_supply s.extension.token_total_supply metadata.token_id amount in
+    let supply = Extension.TokenTotalSupply.create_supply s.extension.token_total_supply metadata.token_id amount in
     Constants.no_operation, {
       s with extension = Extension.set_supply s.extension supply
     }
 
 let mint (lst : mint_or_burn list) (s : storage) =
    let () = Extension.assert_admin s.extension in
-   let process_one ((ledger,supply), {owner;token_id;amount_} : (FA2.Ledger.t * Extension.token_total_supply) * mint_or_burn) =
+   let process_one ((ledger,supply), {owner;token_id;amount_} : (FA2.Ledger.t * Extension.TokenTotalSupply.t) * mint_or_burn) =
       let () = FA2.Storage.assert_token_exist  s token_id in
       FA2.Ledger.increase_token_amount_for_user ledger owner token_id amount_,
-      Extension.increase_supply supply token_id amount_
+      Extension.TokenTotalSupply.increase_supply supply token_id amount_
    in
    let (ledger, supply) = List.fold_left process_one (s.ledger, s.extension.token_total_supply) lst in
    let s = FA2.Storage.set_ledger s ledger in
@@ -42,9 +42,9 @@ let mint (lst : mint_or_burn list) (s : storage) =
 
 let burn (lst : mint_or_burn list) (s : storage) =
    let () = Extension.assert_admin s.extension in
-   let process_one ((ledger,supply), {owner;token_id;amount_} : (FA2.Ledger.t * Extension.token_total_supply) * mint_or_burn) =
+   let process_one ((ledger,supply), {owner;token_id;amount_} : (FA2.Ledger.t * Extension.TokenTotalSupply.t) * mint_or_burn) =
       FA2.Ledger.decrease_token_amount_for_user ledger owner token_id amount_,
-      Extension.decrease_supply supply token_id amount_
+      Extension.TokenTotalSupply.decrease_supply supply token_id amount_
    in
    let (ledger, supply) = List.fold_left process_one (s.ledger, s.extension.token_total_supply) lst in
    let s = FA2.Storage.set_ledger s ledger in
@@ -98,11 +98,13 @@ let set_expiry (p : expiry_params) (s : storage) =
     in Constants.no_operation, new_storage
 
 (* TZIP-17 implementation of TZIP-12 Transfer *)
-let transfer_permitted (t:FA2.transfer) (s: storage) =
-    let make_transfer (acc, t : (FA2.Ledger.t * Extension.t) * FA2.transfer_from) =
+let transfer_permitted (transfer:FA2.transfer) (s: storage) =
+    let make_transfer (acc, transfer_from : (FA2.Ledger.t * Extension.t) * FA2.transfer_from) =
         let (ledger, ext) = acc in
-        let (is_transfer_authorized, ext) = Extension.transfer_presigned ext t in
-        let {from_; tx} = t in
+        let transfer_from_hash = Crypto.blake2b (Bytes.pack transfer_from) in
+        let permit_key : Extension.permit_key = (transfer_from.from_, transfer_from_hash) in 
+        let (is_transfer_authorized, ext) = Extension.transfer_presigned ext permit_key in
+        let {from_; tx} = transfer_from in
         let ledger = List.fold
           (fun (ledger, dst : FA2.Ledger.t * FA2.atomic_trans) ->
             let {token_id; amount; to_} = dst in
@@ -116,13 +118,13 @@ let transfer_permitted (t:FA2.transfer) (s: storage) =
           ) tx ledger in
           (ledger, ext)
         in
-    let (new_ledger, new_ext) = List.fold make_transfer t (s.ledger, s.extension)
+    let (new_ledger, new_ext) = List.fold make_transfer transfer (s.ledger, s.extension)
     in Constants.no_operation, { s with ledger = new_ledger; extension = new_ext }
 
 let set_admin (addr: address) (s: storage) = 
     Constants.no_operation, { s with extension = Extension.set_admin s.extension addr }
 
-type parameter = [@layout:comb]
+type parameter = 
     | Transfer of FA2.transfer
     | Balance_of of FA2.balance_of
     | Update_operators of FA2.update_operators

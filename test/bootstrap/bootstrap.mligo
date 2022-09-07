@@ -51,7 +51,7 @@ let boot_token (owners, ops, init_tok_amount, init_extended_storage
        (1n, init_tok_amount); 
        (2n, (init_tok_amount * 2n)); 
        (3n, init_tok_amount); 
-    ] : Token.Extension.token_total_supply) in
+    ] : Token.Extension.TokenTotalSupply.t) in
 
     let init_storage = {
         metadata = Big_map.literal [
