@@ -24,7 +24,7 @@ let get_initial_extended_storage (admin, default_expiry, max_expiry: address * n
     permits = (Big_map.empty : Token.Extension.permits);
     user_expiries = (Big_map.empty : Token.Extension.user_expiries);
     permit_expiries = (Big_map.empty : Token.Extension.permit_expiries);
-    token_total_supply = (Big_map.empty : Token.Extension.token_total_supply)
+    token_total_supply = (Big_map.empty : Token.Extension.TokenTotalSupply.t)
 }
 
 (* Originate a Token contract with given init_storage storage *)

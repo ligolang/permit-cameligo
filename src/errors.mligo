@@ -7,3 +7,5 @@ let missigned       = "MISSIGNED"
 
 let max_seconds_exceeded = "MAX_SECONDS_EXCEEDED"
 let forbidden_expiry_update = "FORBIDDEN_EXPIRY_UPDATE"
+
+let missing_expiry = "NO_EXPIRY_FOUND"
