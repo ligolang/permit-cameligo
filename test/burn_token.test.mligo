@@ -13,7 +13,7 @@ let init_tok_amount = 10n
 let bootstrap () =
     let (admin, owners, owners_with_keys, ops) = Bootstrap.boot_state(Bootstrap.dummy_genesis_ts) in
     let base_extended_storage = Token_helper.get_initial_extended_storage(
-      admin, Token_helper.dummy_default_expiry, Token_helper.dummy_max_expiry) in
+        admin, Token_helper.dummy_default_expiry, Token_helper.dummy_max_expiry) in
     let tok = Bootstrap.boot_token(owners, ops, init_tok_amount, base_extended_storage) in
     (tok, admin, owners_with_keys)
 

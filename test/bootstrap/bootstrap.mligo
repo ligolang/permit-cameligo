@@ -40,8 +40,9 @@ let boot_state (init_ts : timestamp) =
     init_tok_amount is the amount of token allocated to every
     bootstrapped accounts
 *)
+
 let boot_token (owners, ops, init_tok_amount, init_extended_storage
-: (address * address * address) * (address * address * address) * nat * Token.Extension.t) =
+: (address * address * address) * (address * address * address) * nat * Token.extension) =
     let initial_fa2_storage = FA2_helper.get_initial_storage(
         owners, ops, init_tok_amount
     ) in
@@ -51,7 +52,7 @@ let boot_token (owners, ops, init_tok_amount, init_extended_storage
        (1n, init_tok_amount); 
        (2n, (init_tok_amount * 2n)); 
        (3n, init_tok_amount); 
-    ] : Token.Extension.TokenTotalSupply.t) in
+    ] : Token.TokenTotalSupply.t) in
 
     let init_storage = {
         metadata = Big_map.literal [
@@ -61,7 +62,7 @@ let boot_token (owners, ops, init_tok_amount, init_extended_storage
         ledger         = initial_fa2_storage.ledger;
         token_metadata = initial_fa2_storage.token_metadata;
         operators      = initial_fa2_storage.operators;
-        extension      = { init_extended_storage with token_total_supply = supply };
+        extension      = { init_extended_storage with extension = supply };
     } in
 
     Token_helper.originate(init_storage)

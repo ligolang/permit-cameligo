@@ -4,10 +4,10 @@
 
 type storage = FA2.storage
 type extension = Extension.t
-type t = extension storage
+type 'a t = 'a extension storage
 
-let get_token_metadata (s:t) = s.token_metadata
-let set_token_metadata (s:t) (token_metadata:FA2.TokenMetadata.t) =
+let get_token_metadata (type a) (s:a t) = s.token_metadata
+let set_token_metadata (type a) (s:a t) (token_metadata:FA2.TokenMetadata.t) =
     {s with token_metadata = token_metadata}
 
 let add_new_token (md:FA2.TokenMetadata.t) (token_id : nat) (data:FA2.TokenMetadata.data) =

@@ -24,7 +24,7 @@ let get_initial_extended_storage (admin, default_expiry, max_expiry: address * n
     permits = (Big_map.empty : Token.Extension.permits);
     user_expiries = (Big_map.empty : Token.Extension.user_expiries);
     permit_expiries = (Big_map.empty : Token.Extension.permit_expiries);
-    token_total_supply = (Big_map.empty : Token.Extension.TokenTotalSupply.t)
+    extension = (Big_map.empty : Token.TokenTotalSupply.t)
 }
 
 (* Originate a Token contract with given init_storage storage *)
@@ -137,6 +137,6 @@ let assert_balance (taddr, owner, token_id, amount_ : taddr * address * nat * na
 (* assert Token contract at [taddr] have token_total_supply for [token_id] matching [amount_] *)
 let assert_supply (taddr, token_id, amount_ : taddr * Token.FA2.Ledger.token_id * nat) =
     let s = Test.get_storage taddr in
-    match Big_map.find_opt token_id s.extension.token_total_supply with
+    match Big_map.find_opt token_id s.extension.extension with
         Some tokens -> assert(tokens = amount_)
         | None -> Test.failwith("Big_map key should not be missing")
