@@ -3,9 +3,14 @@
 #import "./storage.mligo" "Storage"
 #import "./extension.mligo" "Extension"
 #import "./errors.mligo" "Errors"
+#import "./token_total_supply.mligo" "TokenTotalSupply"
 
-type storage = Storage.t
+type token_total_supply = TokenTotalSupply.t
+type gen_storage = Storage.t
+type storage = token_total_supply gen_storage
 type result = operation list * storage
+type gen_extension = Extension.t
+type extension = token_total_supply gen_extension
 
 type mint_or_burn = [@layout:comb] {
    owner    : address;
@@ -22,39 +27,39 @@ let create (metadata,owner,amount : FA2.TokenMetadata.data * address * nat) (s :
     let s = Storage.set_token_metadata s md in
     let ledger = FA2.Ledger.increase_token_amount_for_user s.ledger owner metadata.token_id amount in
     let s = FA2.Storage.set_ledger s ledger in
-    let supply = Extension.TokenTotalSupply.create_supply s.extension.token_total_supply metadata.token_id amount in
+    let supply = TokenTotalSupply.create_supply s.extension.extension metadata.token_id amount in
     Constants.no_operation, {
-      s with extension = Extension.set_supply s.extension supply
+      s with extension = Extension.set_extension s.extension supply
     }
 
 let mint (lst : mint_or_burn list) (s : storage) =
    let () = Extension.assert_admin s.extension in
-   let process_one ((ledger,supply), {owner;token_id;amount_} : (FA2.Ledger.t * Extension.TokenTotalSupply.t) * mint_or_burn) =
+   let process_one ((ledger,supply), {owner;token_id;amount_} : (FA2.Ledger.t * TokenTotalSupply.t) * mint_or_burn) =
       let () = FA2.Storage.assert_token_exist  s token_id in
       FA2.Ledger.increase_token_amount_for_user ledger owner token_id amount_,
-      Extension.TokenTotalSupply.increase_supply supply token_id amount_
+      TokenTotalSupply.increase_supply supply token_id amount_
    in
-   let (ledger, supply) = List.fold_left process_one (s.ledger, s.extension.token_total_supply) lst in
+   let (ledger, supply) = List.fold_left process_one (s.ledger, s.extension.extension) lst in
    let s = FA2.Storage.set_ledger s ledger in
    Constants.no_operation, {
-      s with extension = Extension.set_supply s.extension supply
+      s with extension = Extension.set_extension s.extension supply
     }
 
 let burn (lst : mint_or_burn list) (s : storage) =
    let () = Extension.assert_admin s.extension in
-   let process_one ((ledger,supply), {owner;token_id;amount_} : (FA2.Ledger.t * Extension.TokenTotalSupply.t) * mint_or_burn) =
+   let process_one ((ledger,supply), {owner;token_id;amount_} : (FA2.Ledger.t * TokenTotalSupply.t) * mint_or_burn) =
       FA2.Ledger.decrease_token_amount_for_user ledger owner token_id amount_,
-      Extension.TokenTotalSupply.decrease_supply supply token_id amount_
+      TokenTotalSupply.decrease_supply supply token_id amount_
    in
-   let (ledger, supply) = List.fold_left process_one (s.ledger, s.extension.token_total_supply) lst in
+   let (ledger, supply) = List.fold_left process_one (s.ledger, s.extension.extension) lst in
    let s = FA2.Storage.set_ledger s ledger in
    Constants.no_operation,{
-      s with extension = Extension.set_supply s.extension supply
+      s with extension = Extension.set_extension s.extension supply
     }
 
 (* TZIP-17 *)
 let permit (permits : (permit_params list)) (s : storage) =
-    let process_permit (ext, permit : Extension.t * permit_params) =
+    let process_permit (ext, permit : extension * permit_params) =
         let (pub_key, (sig, hash_)) = permit in
         let packed = Bytes.pack (((Tezos.get_chain_id()), Tezos.get_self_address()), (ext.counter, hash_)) in
         if Crypto.check pub_key sig packed
@@ -66,7 +71,7 @@ let permit (permits : (permit_params list)) (s : storage) =
             | Some submission_timestamp ->
                 let () = Extension._check_not_expired s.extension submission_timestamp permit_key in
                 Extension.update_permit ext permit_key
-        else ([%Michelson ({| { FAILWITH } |} : string * bytes -> Extension.t)]) (Errors.missigned, packed)
+        else ([%Michelson ({| { FAILWITH } |} : string * bytes -> extension)]) (Errors.missigned, packed)
     in
     let extension = List.fold_left process_permit s.extension permits in
     Constants.no_operation, { s with extension = extension }
@@ -99,7 +104,7 @@ let set_expiry (p : expiry_params) (s : storage) =
 
 (* TZIP-17 implementation of TZIP-12 Transfer *)
 let transfer_permitted (transfer:FA2.transfer) (s: storage) =
-    let make_transfer (acc, transfer_from : (FA2.Ledger.t * Extension.t) * FA2.transfer_from) =
+    let make_transfer (acc, transfer_from : (FA2.Ledger.t * extension) * FA2.transfer_from) =
         let (ledger, ext) = acc in
         let transfer_from_hash = Crypto.blake2b (Bytes.pack transfer_from) in
         let permit_key : Extension.permit_key = (transfer_from.from_, transfer_from_hash) in 
