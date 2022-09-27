@@ -11,17 +11,13 @@ Permits have 2 main use cases:
 
 - making gasless transaction
 - avoiding manipulating operators (FA2) or allowances (FA1.2) when a transaction
-must be done by a third-party
+must be done by a third party
 
 ## Requirements
 
 The contract is written in `cameligo` flavour of [LigoLANG](https://ligolang.org/),
-to be able to compile the contract, you need either:
-
-- a [ligo binary](https://ligolang.org/docs/intro/installation#static-linux-binary),
-  in this case, to use the binary, you need to have set up a `LIGO` environment variable,
-  pointing to the binary (see [Makefile](./Makefile))
-- or [docker](https://docs.docker.com/engine/install/)
+to be able to compile the contract, you need either a [ligo binary](https://ligolang.org/docs/intro/installation#static-linux-binary),
+or [docker](https://docs.docker.com/engine/install/).
 
 For deploy scripts, you also need to have [nodejs](https://nodejs.org/en/) installed,
 up to version 14 and docker if you wish to deploy on a sandbox.
@@ -30,10 +26,14 @@ up to version 14 and docker if you wish to deploy on a sandbox.
 
 1. Run `make install` to install dependencies
 2. Run `make` to see available commands
+3. You can also override `make` parameters by running :
+```sh
+make compile ligo_compiler=<LIGO_EXECUTABLE> PROTOCOL_OPT="--protocol <PROTOCOL>"
+```
 
 ## Use case: taco shop loyalty program
 
-A potential use case is the digitalization of the good old loyalty card.  
+A potential use case is the digitalization of the good old loyalty card.
 
 ### Loyalty Token creation
 
@@ -62,12 +62,12 @@ sequenceDiagram
 
 ### Permit creation
 
-Alicia is a regular client of the taco shop.  
-She already accumulated 10 tokens, which can be exchanged for a free taco.  
+Alicia is a regular client of the taco shop.
+She already accumulated 10 tokens, which can be exchanged for a free taco.
 One day, she happens to be out of tez, so she decides to use her tokens to pay.
 
-So, she asks Pedro to create a permit.  
-The permitted action will be the transfer of 10 tokens from Alicia to Pedro.  
+So, she asks Pedro to create a permit.
+The permitted action will be the transfer of 10 tokens from Alicia to Pedro.
 Once Pedro has verified the permit parameters given by Alicia, he calls the smart
 contract with them, registering the permit.
 
@@ -104,7 +104,7 @@ sequenceDiagram
 On top of FA2 standard, the following entrypoints are implemented:
 
 - `permit`: allows any sender to register a permit.
-- `setExpiry`: allows any sender to change its expiry configuration for its own permits.  
+- `setExpiry`: allows any sender to change its expiry configuration for its own permits.
   (intended camel case to comply with tzip-17)
 - `transfer`: overrides FA2 `transfer` to add the handling of permitted parameters.
 
@@ -121,7 +121,7 @@ Additionally, for the use case presentation, 3 entrypoints have been added:
 classDiagram
     Permit <|-- Storage
     UserExpiry <|-- Storage
-    PermitExpiry <|-- Storage 
+    PermitExpiry <|-- Storage
 
     class Storage {
         defaultExpiry: nat
