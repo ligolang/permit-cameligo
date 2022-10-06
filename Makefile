@@ -29,12 +29,12 @@ clean: ## clean up
 deploy: ## deploy
 	@if [ ! -f ./scripts/metadata.json ]; then cp scripts/metadata.json.dist \
         scripts/metadata.json ; fi
-	@npx ts-node ./scripts/deploy.ts
+	@cd scripts && npx ts-node ./deploy.ts
 
 install: ## install dependencies
 	@if [ ! -f ./.env ]; then cp .env.dist .env ; fi
 	@$(LIGO) install
-	@npm i
+	@cd scripts && npm i
 
 .PHONY: test
 test: ## run tests (SUITE=permit make test)
