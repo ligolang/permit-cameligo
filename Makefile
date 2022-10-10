@@ -1,9 +1,9 @@
 SHELL := /bin/bash
 
-ifndef LIGO
-LIGO=docker run -u $(id -u):$(id -g) --rm -v "$(PWD)":"$(PWD)" -w "$(PWD)" ligolang/ligo:stable
-endif
-# ^ use LIGO en var bin if configured, otherwise use docker
+ligo_compiler?=docker run -u $(id -u):$(id -g) --rm -v "$(PWD)":"$(PWD)" -w "$(PWD)" ligolang/ligo:stable
+# ^ Override this variable when you run make command by make <COMMAND> ligo_compiler=<LIGO_EXECUTABLE>
+# ^ Otherwise use default one (you'll need docker)
+PROTOCOL_OPT?=
 
 project_root=--project-root .
 # ^ required when using packages
@@ -12,10 +12,10 @@ help:
 	@grep -E '^[ a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | \
 	awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
 
-compile = $(LIGO) compile contract $(project_root) ./src/$(1) -o ./compiled/$(2) $(3)
+compile = $(ligo_compiler) compile contract $(project_root) ./src/$(1) -o ./compiled/$(2) $(3) $(PROTOCOL_OPT)
 # ^ compile contract to michelson or micheline
 
-test = $(LIGO) run test $(project_root) ./test/$(1)
+test = $(ligo_compiler) run test $(project_root) ./test/$(1) $(PROTOCOL_OPT)
 # ^ run given test file
 
 compile: ## compile contracts
