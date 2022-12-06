@@ -2,7 +2,7 @@
   "name": "@ligo/permit",
   "version": "1.0.0",
   "dependencies": {
-    "ligo-generic-fa2": "^1.0.2"
+    "ligo-extendable-fa2": "^1.0.2"
   },
   "repository": {
     "type": "git",
