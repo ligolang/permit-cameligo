@@ -1,4 +1,4 @@
-#import "ligo-generic-fa2/lib/multi_asset/fa2.mligo" "FA2"
+#import "ligo-extendable-fa2/lib/multi_asset/fa2.mligo" "FA2"
 #import "./errors.mligo" "Errors"
 #import "./extension.mligo" "Extension"
 
