@@ -1,4 +1,4 @@
-#import "ligo-generic-fa2/lib/multi_asset/fa2.mligo" "FA2"
+#import "ligo-extendable-fa2/lib/multi_asset/fa2.mligo" "FA2"
 #import "./constants.mligo" "Constants"
 #import "./storage.mligo" "Storage"
 #import "./extension.mligo" "Extension"
@@ -109,7 +109,7 @@ let transfer_permitted (transfer:FA2.transfer) (s: storage) =
         let transfer_from_hash = Crypto.blake2b (Bytes.pack transfer_from) in
         let permit_key : Extension.permit_key = (transfer_from.from_, transfer_from_hash) in 
         let (is_transfer_authorized, ext) = Extension.transfer_presigned ext permit_key in
-        let {from_; tx} = transfer_from in
+        let {from_; txs} = transfer_from in
         let ledger = List.fold
           (fun (ledger, dst : FA2.Ledger.t * FA2.atomic_trans) ->
             let {token_id; amount; to_} = dst in
@@ -120,7 +120,7 @@ let transfer_permitted (transfer:FA2.transfer) (s: storage) =
             let ledger = FA2.Ledger.decrease_token_amount_for_user ledger from_ token_id amount in
             let ledger = FA2.Ledger.increase_token_amount_for_user ledger to_ token_id amount in
             ledger
-          ) tx ledger in
+          ) txs ledger in
           (ledger, ext)
         in
     let (new_ledger, new_ext) = List.fold make_transfer transfer (s.ledger, s.extension)

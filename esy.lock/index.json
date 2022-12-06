@@ -1,0 +1,33 @@
+{
+  "checksum": "b6ec0762b9fbc17b4750f8185d0f4188",
+  "root": "@ligo/permit@link-dev:./package.json",
+  "node": {
+    "ligo-extendable-fa2@1.0.4@d41d8cd9": {
+      "id": "ligo-extendable-fa2@1.0.4@d41d8cd9",
+      "name": "ligo-extendable-fa2",
+      "version": "1.0.4",
+      "source": {
+        "type": "install",
+        "source": [
+          "archive:https://packages.ligolang.org/-/api/ligo-extendable-fa2/-/ligo-extendable-fa2-1.0.4.tgz#sha1:e8e94c317cfcb84737301837c725828279d9b782"
+        ]
+      },
+      "overrides": [],
+      "dependencies": [],
+      "devDependencies": []
+    },
+    "@ligo/permit@link-dev:./package.json": {
+      "id": "@ligo/permit@link-dev:./package.json",
+      "name": "@ligo/permit",
+      "version": "link-dev:./package.json",
+      "source": {
+        "type": "link-dev",
+        "path": ".",
+        "manifest": "package.json"
+      },
+      "overrides": [],
+      "dependencies": [ "ligo-extendable-fa2@1.0.4@d41d8cd9" ],
+      "devDependencies": []
+    }
+  }
+}

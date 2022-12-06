@@ -22,7 +22,7 @@ let test_success =
     let (owner2_addr, _, _) = owner2 in
     let transfer_request = ({
         from_=owner1_addr;
-        tx=([{to_=owner2_addr;amount=2n;token_id=1n}] : Token.FA2.atomic_trans list)
+        txs=([{to_=owner2_addr;amount=2n;token_id=1n}] : Token.FA2.atomic_trans list)
     }) in
     let hash_ = Crypto.blake2b (Bytes.pack transfer_request) in
     let permit = Token_helper.make_permit(hash_, owner1, tok.addr, 0n) in
@@ -49,7 +49,7 @@ let test_success_by_operator_with_expired_permit =
 
     let transfer_request = ({
         from_=owner1_addr;
-        tx=([{to_=owner2_addr;amount=2n;token_id=1n}] : Token.FA2.atomic_trans list)
+        txs=([{to_=owner2_addr;amount=2n;token_id=1n}] : Token.FA2.atomic_trans list)
     }) in
     let hash_ = Crypto.blake2b (Bytes.pack transfer_request) in
 
@@ -80,7 +80,7 @@ let test_failure_expired_permit =
 
     let transfer_request = ({
         from_=owner1_addr;
-        tx=([{to_=owner2_addr;amount=2n;token_id=1n}] : Token.FA2.atomic_trans list)
+        txs=([{to_=owner2_addr;amount=2n;token_id=1n}] : Token.FA2.atomic_trans list)
     }) in
     let hash_ = Crypto.blake2b (Bytes.pack transfer_request) in
 
