@@ -1,5 +1,5 @@
 {
-  "checksum": "b6ec0762b9fbc17b4750f8185d0f4188",
+  "checksum": "b613e628d95ec856229b8808bc5c12c3",
   "root": "@ligo/permit@link-dev:./package.json",
   "node": {
     "ligo-extendable-fa2@1.0.4@d41d8cd9": {
@@ -9,7 +9,7 @@
       "source": {
         "type": "install",
         "source": [
-          "archive:https://packages.ligolang.org/-/api/ligo-extendable-fa2/-/ligo-extendable-fa2-1.0.4.tgz#sha1:e8e94c317cfcb84737301837c725828279d9b782"
+          "archive:https://packages.ligolang.org/-/api/ligo-extendable-fa2/-/ligo-extendable-fa2-1.0.4.tgz#sha1:4c41214de0dfb9e377bdc3db9afa27c753ee039d"
         ]
       },
       "overrides": [],
