@@ -22,19 +22,25 @@ compile: ## compile contracts
 	@if [ ! -d ./compiled ]; then mkdir ./compiled ; fi
 	@$(call compile,main.mligo,taco_shop_token.tz)
 	@$(call compile,main.mligo,taco_shop_token.json,--michelson-format json)
+	@echo "Compiled contracts!"
 
 clean: ## clean up
 	@rm -rf compiled
 
-deploy: ## deploy
-	@if [ ! -f ./scripts/metadata.json ]; then cp scripts/metadata.json.dist \
-        scripts/metadata.json ; fi
-	@cd scripts && npx ts-node ./deploy.ts
+deploy: deploy_deps deploy.js
+
+deploy.js:
+	@if [ ! -f ./deploy/metadata.json ]; then cp deploy/metadata.json.dist deploy/metadata.json ; fi
+	@echo "Running deploy script\n"
+	@cd deploy && npm start
+
+deploy_deps:
+	@echo "Installing deploy script dependencies"
+	@cd deploy && npm install
+	@echo ""
 
 install: ## install dependencies
-	@if [ ! -f ./.env ]; then cp .env.dist .env ; fi
 	@$(ligo_compiler) install
-	@cd scripts && npm i
 
 .PHONY: test
 test: ## run tests (SUITE=permit make test)
