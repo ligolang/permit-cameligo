@@ -20,6 +20,7 @@ test = $(ligo_compiler) run test $(project_root) ./test/$(1) $(PROTOCOL_OPT)
 
 compile: ## compile contracts
 	@if [ ! -d ./compiled ]; then mkdir ./compiled ; fi
+	@echo "Compiling contracts..."
 	@$(call compile,main.mligo,taco_shop_token.tz)
 	@$(call compile,main.mligo,taco_shop_token.json,--michelson-format json)
 	@echo "Compiled contracts!"
