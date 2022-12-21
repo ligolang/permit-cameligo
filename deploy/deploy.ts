@@ -117,6 +117,11 @@ const deploy = async () => {
         chalk.yellow.bold(origination.contractAddress),
       endMessage: chalk.green`Contract confirmed!`,
     });
+
+    console.log(
+      chalk.green`\nContract address: \n- ` +
+        chalk.green.underline`${origination.contractAddress}`
+    );
   } catch (e) {
     console.log("");
     console.log(chalk.bold.redBright`Error during deployment:`);
