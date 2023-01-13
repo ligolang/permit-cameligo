@@ -6,7 +6,7 @@
   "scripts": {
     "start": "ts-node deploy.ts"
   },
-  "devDependencies": {
+  "dependencies": {
     "@taquito/signer": "^15.0.0",
     "@taquito/taquito": "^15.0.0",
     "chalk": "^4.1.2",
