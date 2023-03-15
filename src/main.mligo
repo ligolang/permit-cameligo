@@ -140,7 +140,7 @@ type parameter =
     | SetExpiry of expiry_params
     | Set_admin of address
 
-let main ((p,s):(parameter * storage)): result = match p with
+let main (p : parameter) (s : storage) : result = match p with
    Transfer         p -> transfer_permitted p s
 |  Balance_of       p -> FA2.balance_of     p s
 |  Update_operators p -> FA2.update_ops     p s
