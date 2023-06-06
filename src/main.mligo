@@ -60,9 +60,9 @@ let burn (lst : mint_or_burn list) (s : storage) =
 (* TZIP-17 *)
 let permit (permits : (permit_params list)) (s : storage) =
     let process_permit (ext, permit : extension * permit_params) =
-        let (pub_key, (sig, hash_)) = permit in
+        let (pub_key, (sig_, hash_)) = permit in
         let packed = Bytes.pack (((Tezos.get_chain_id()), Tezos.get_self_address()), (ext.counter, hash_)) in
-        if Crypto.check pub_key sig packed
+        if Crypto.check pub_key sig_ packed
         then
             let sender_ = Tezos.address (Tezos.implicit_account (Crypto.hash_key pub_key)) in
             let permit_key = sender_, hash_ in
