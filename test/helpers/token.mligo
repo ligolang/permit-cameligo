@@ -41,8 +41,8 @@ let originate (init_storage: Token.storage) =
 let make_permit (hash_, account, token_addr, counter : bytes * (address * key * string) * address * nat) : Token.permit_params =
     let (_, pub_key, secret_key) = account in
     let packed = Bytes.pack ((0x00000000, token_addr), (counter, hash_)) in
-    let sig = Test.sign secret_key packed in
-    (pub_key, (sig, hash_))
+    let sig_ = Test.sign secret_key packed in
+    (pub_key, (sig_, hash_))
 
 (* Call entry point of Token contr contract *)
 let call (p, contr : Token.parameter * contr) =
