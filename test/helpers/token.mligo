@@ -2,8 +2,8 @@
 #import "./assert.mligo" "Assert"
 
 (* Some types for readability *)
-type taddr = (Token.parameter, Token.storage) typed_address
-type contr = Token.parameter contract
+type taddr = (Token parameter_of, Token.storage) typed_address
+type contr = Token parameter_of contract
 type originated = {
     addr: address;
     taddr: taddr;
@@ -29,7 +29,7 @@ let get_initial_extended_storage (admin, default_expiry, max_expiry: address * n
 
 (* Originate a Token contract with given init_storage storage *)
 let originate (init_storage: Token.storage) =
-    let (taddr, _, _) = Test.originate Token.main init_storage 0tez in
+    let (taddr, _, _) = Test.originate_module (contract_of Token) init_storage 0tez in
     let contr = Test.to_contract taddr in
     let addr = Tezos.address contr in
     { addr = addr; taddr = taddr; contr = contr }
@@ -45,7 +45,7 @@ let make_permit (hash_, account, token_addr, counter : bytes * (address * key * 
     (pub_key, (sig_, hash_))
 
 (* Call entry point of Token contr contract *)
-let call (p, contr : Token.parameter * contr) =
+let call (p, contr : Token parameter_of * contr) =
     Test.transfer_to_contract contr p 0mutez
 
 let permit (p, contr : Token.permit_params list * contr) =
@@ -58,7 +58,7 @@ let set_admin (p, contr : address * contr) =
     call(Set_admin(p), contr)
 
 let transfer (p, contr : Token.FA2.transfer * contr) =
-    let p : Token.parameter = Transfer(p) in
+    let p : Token parameter_of = Transfer(p) in
     call(p, contr)
 
 let create_token (md, owner, amount, contr : Token.FA2.TokenMetadata.data * address * nat * contr) =

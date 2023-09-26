@@ -21,7 +21,7 @@ type mint_or_burn = [@layout:comb] {
 type permit_params = (key * (signature * bytes))
 type expiry_params = (address * (nat * (bytes option)))
 
-let create (metadata,owner,amount : FA2.TokenMetadata.data * address * nat) (s : storage) =
+[@entry] let create_token (metadata,owner,amount : FA2.TokenMetadata.data * address * nat) (s : storage) =
     let () = Extension.assert_admin s.extension in
     let md = Storage.add_new_token s.token_metadata metadata.token_id metadata in
     let s = Storage.set_token_metadata s md in
@@ -32,7 +32,7 @@ let create (metadata,owner,amount : FA2.TokenMetadata.data * address * nat) (s :
       s with extension = Extension.set_extension s.extension supply
     }
 
-let mint (lst : mint_or_burn list) (s : storage) =
+[@entry] let mint_token (lst : mint_or_burn list) (s : storage) =
    let () = Extension.assert_admin s.extension in
    let process_one ((ledger,supply), {owner;token_id;amount_} : (FA2.Ledger.t * TokenTotalSupply.t) * mint_or_burn) =
       let () = FA2.Storage.assert_token_exist  s token_id in
@@ -45,7 +45,7 @@ let mint (lst : mint_or_burn list) (s : storage) =
       s with extension = Extension.set_extension s.extension supply
     }
 
-let burn (lst : mint_or_burn list) (s : storage) =
+[@entry] let burn_token (lst : mint_or_burn list) (s : storage) =
    let () = Extension.assert_admin s.extension in
    let process_one ((ledger,supply), {owner;token_id;amount_} : (FA2.Ledger.t * TokenTotalSupply.t) * mint_or_burn) =
       FA2.Ledger.decrease_token_amount_for_user ledger owner token_id amount_,
@@ -58,7 +58,7 @@ let burn (lst : mint_or_burn list) (s : storage) =
     }
 
 (* TZIP-17 *)
-let permit (permits : (permit_params list)) (s : storage) =
+[@entry] let permit (permits : (permit_params list)) (s : storage) =
     let process_permit (ext, permit : extension * permit_params) =
         let (pub_key, (sig_, hash_)) = permit in
         let packed = Bytes.pack (((Tezos.get_chain_id()), Tezos.get_self_address()), (ext.counter, hash_)) in
@@ -77,7 +77,7 @@ let permit (permits : (permit_params list)) (s : storage) =
     Constants.no_operation, { s with extension = extension }
 
 (* TZIP-17 *)
-let set_expiry (p : expiry_params) (s : storage) =
+[@entry] let setExpiry (p : expiry_params) (s : storage) =
     let (user_address, (seconds, permit_hash_opt)) = p in
     let new_storage =
         if seconds > s.extension.max_expiry
@@ -103,11 +103,11 @@ let set_expiry (p : expiry_params) (s : storage) =
     in Constants.no_operation, new_storage
 
 (* TZIP-17 implementation of TZIP-12 Transfer *)
-let transfer_permitted (transfer:FA2.transfer) (s: storage) =
+[@entry] let transfer (transfer:FA2.transfer) (s: storage) =
     let make_transfer (acc, transfer_from : (FA2.Ledger.t * extension) * FA2.transfer_from) =
         let (ledger, ext) = acc in
         let transfer_from_hash = Crypto.blake2b (Bytes.pack transfer_from) in
-        let permit_key : Extension.permit_key = (transfer_from.from_, transfer_from_hash) in 
+        let permit_key : Extension.permit_key = (transfer_from.from_, transfer_from_hash) in
         let (is_transfer_authorized, ext) = Extension.transfer_presigned ext permit_key in
         let {from_; txs} = transfer_from in
         let ledger = List.fold
@@ -126,30 +126,14 @@ let transfer_permitted (transfer:FA2.transfer) (s: storage) =
     let (new_ledger, new_ext) = List.fold make_transfer transfer (s.ledger, s.extension)
     in Constants.no_operation, { s with ledger = new_ledger; extension = new_ext }
 
-let set_admin (addr: address) (s: storage) = 
+[@entry] let set_admin (addr: address) (s: storage) =
     Constants.no_operation, { s with extension = Extension.set_admin s.extension addr }
 
-type parameter = 
-    | Transfer of FA2.transfer
-    | Balance_of of FA2.balance_of
-    | Update_operators of FA2.update_operators
-    | Create_token of FA2.TokenMetadata.data * address * nat
-    | Mint_token of mint_or_burn list
-    | Burn_token of mint_or_burn list
-    | Permit of permit_params list
-    | SetExpiry of expiry_params
-    | Set_admin of address
+[@entry] let balance_of (p : FA2.balance_of) (s : storage) =
+    FA2.balance_of p s
 
-let main (p : parameter) (s : storage) : result = match p with
-   Transfer         p -> transfer_permitted p s
-|  Balance_of       p -> FA2.balance_of     p s
-|  Update_operators p -> FA2.update_ops     p s
-|  Create_token     p -> create             p s
-|  Mint_token       p -> mint               p s
-|  Burn_token       p -> burn               p s
-|  Permit           p -> permit             p s
-|  SetExpiry        p -> set_expiry         p s
-|  Set_admin        p -> set_admin          p s
+[@entry] let update_operators (p : FA2.update_operators) (s : storage) =
+    FA2.update_ops p s
 
 (*
     Off-chain views required by TZIP-17
