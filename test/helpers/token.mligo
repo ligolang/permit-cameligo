@@ -29,10 +29,10 @@ let get_initial_extended_storage (admin, default_expiry, max_expiry: address * n
 
 (* Originate a Token contract with given init_storage storage *)
 let originate (init_storage: Token.storage) =
-    let (taddr, _, _) = Test.originate_module (contract_of Token) init_storage 0tez in
-    let contr = Test.to_contract taddr in
-    let addr = Tezos.address contr in
-    { addr = addr; taddr = taddr; contr = contr }
+    let orig = Test.originate (contract_of Token) init_storage 0tez in
+    let contr = Test.to_contract orig.addr in
+    let addr = Test.to_address orig.addr in
+    { addr = addr; taddr = orig.addr; contr = contr }
 
 (*
     Make a permit with given packed params and secret key
